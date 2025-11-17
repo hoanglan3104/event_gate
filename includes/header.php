@@ -75,5 +75,7 @@ require_once "../config.php";
         <li><a href="../pages/event_type.php?event_type=<?php echo urlencode('art'); ?>">Văn hóa nghệ thuật</a></li>
         <li><a href="../pages/event_type.php?event_type=<?php echo urlencode('visit'); ?>">Tham quan</a></li>
         <li><a href="../pages/event_type.php?event_type=<?php echo urlencode('tournament'); ?>">Giải đấu</a></li>
+        <li><a href="../pages/event_type.php?event_type=<?php echo urlencode('movie'); ?>">Phim</a></li>
     </ul>
 </div>
+

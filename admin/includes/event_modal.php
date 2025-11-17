@@ -3,27 +3,32 @@
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content shadow">
       <div class="modal-header">
-        <h5 class="modal-title d-flex align-items-center gap-2">Sự kiện & Phim</h5>
+        <div class="d-flex flex-column">
+          <h5 class="modal-title d-flex align-items-center gap-2">
+            <i class="bi bi-easel2"></i>
+            <span>Sự kiện &amp; Phim</span>
+          </h5>
+          <span class="small text-muted">
+            Mã sự kiện: <span id="eventIdDisplay" class="fw-semibold"></span>
+          </span>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
       </div>
 
       <form action="update_event.php" method="POST" enctype="multipart/form-data">
         <div class="modal-body">
-          <!-- hidden -->
           <input type="hidden" id="eventId" name="event_id">
           <input type="hidden" id="oldEventImg" name="old_event_img">
 
-          <!-- Địa điểm -->
           <div class="mb-3">
             <label for="location" class="form-label">Địa điểm</label>
             <input type="text" class="form-control" id="location" name="location" required>
           </div>
 
           <div class="row">
-            <!-- Cột trái -->
             <div class="col-md-6">
               <div class="mb-2">
-                <label for="eventName" class="form-label">Tên sự kiện & Phim</label>
+                <label for="eventName" class="form-label">Tên sự kiện &amp; Phim</label>
                 <input type="text" class="form-control" id="eventName" name="event_name" required>
               </div>
 
@@ -44,7 +49,7 @@
 
               <div class="mb-2">
                 <label for="totalSeats" class="form-label">Tổng số ghế</label>
-                <p id="seatWarning" class="text-danger mt-1" style="display: none;">
+                <p id="seatWarning" class="text-danger mt-1" style="display:none;">
                   Không thể thay đổi số lượng ghế vì sự kiện đã có người đặt.
                 </p>
                 <select class="form-select" id="totalSeats" name="total_seats">
@@ -64,13 +69,14 @@
               </div>
             </div>
 
-            <!-- Cột phải -->
             <div class="col-md-6">
               <div class="text-center mb-2">
-                <label class="form-label"></label>
-                <img id="eventImagePreview" src="" alt="Ảnh sự kiện"
+                <label class="form-label">Ảnh sự kiện</label>
+                <img id="eventImagePreview"
+                     src=""
+                     alt="Ảnh sự kiện"
                      class="img-fluid rounded shadow mb-2"
-                     style="height: auto; width:100%; object-fit:cover;">
+                     style="height:auto;width:100%;object-fit:cover;">
                 <input type="file" class="form-control mb-2" id="eventImageInput" name="event_img">
               </div>
 
@@ -79,7 +85,6 @@
                 <input type="text" class="form-control" id="eventImageLink" name="event_img_link">
               </div>
 
-              <!-- Loại nội dung: sự kiện / phim -->
               <div class="mb-2">
                 <label for="eventKind" class="form-label">Loại nội dung</label>
                 <select class="form-select" id="eventKind" name="event_kind">
@@ -88,7 +93,6 @@
                 </select>
               </div>
 
-              <!-- Thể loại chi tiết -->
               <div class="mb-2">
                 <label for="eventType" class="form-label">Thể loại</label>
                 <select class="form-select" id="eventType" name="event_type">
@@ -96,10 +100,7 @@
                   <option value="art">Nghệ thuật</option>
                   <option value="visit">Tham quan</option>
                   <option value="tournament">Giải đấu</option>
-                  <!-- Sau này nếu muốn phân chi tiết phim:
-                  <option value="romance">Phim tình cảm</option>
-                  <option value="action">Phim hành động</option>
-                  -->
+                  <option value="movie">Phim</option>
                 </select>
               </div>
             </div>

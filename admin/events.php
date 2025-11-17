@@ -73,70 +73,78 @@ if (isset($_GET['view'])) {
     <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
-    <?php $current_page = 'events'; include "includes/menu.php"; ?>
-    <?php include "includes/event_modal.php"; ?>
-    <?php if ($selectedEvent): ?>
-        <?php include "includes/detail_modal.php"; ?>
-    <?php endif ?>
+<?php $current_page = 'events'; include "includes/menu.php"; ?>
+<?php include "includes/event_modal.php"; ?>
+<?php if ($selectedEvent): ?>
+    <?php include "includes/detail_modal.php"; ?>
+<?php endif ?>
 
-    <div class="container mt-4" style="margin-left: 20px;">
-        <h2 class="mb-4"><i class="bi bi-easel2"></i> Danh sách sự kiện & phim</h2>
+<div class="main-content p-4 dashboard-main">
+    <div class="card dashboard-section-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                <h2 class="mb-0 d-flex align-items-center gap-2">
+                    <i class="bi bi-easel2"></i>
+                    <span>Danh sách sự kiện &amp; phim</span>
+                </h2>
+                <ul class="nav nav-pills">
+                    <li class="nav-item">
+                        <a class="nav-link <?= $status == 'upcoming' ? 'active' : '' ?>" href="?status=upcoming">
+                            <i class="bi bi-calendar-event"></i> Chưa diễn ra
+                        </a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="nav-link <?= $status == 'ended' ? 'active' : '' ?>" href="?status=ended">
+                            <i class="bi bi-clock-history"></i> Đã kết thúc
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-        <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
-            <ul class="nav nav-pills">
-                <li class="nav-item">
-                    <a class="nav-link <?= $status == 'upcoming' ? 'active' : '' ?>" href="?status=upcoming">
-                        <i class="bi bi-calendar-event"></i> Chưa diễn ra
-                    </a>
-                </li>
-                <li class="nav-item ms-2">
-                    <a class="nav-link <?= $status == 'ended' ? 'active' : '' ?>" href="?status=ended">
-                        <i class="bi bi-clock-history"></i> Đã kết thúc
-                    </a>
-                </li>
-            </ul>
-
-            <form class="d-flex align-items-center gap-2" method="GET" action="" style="flex: 1; justify-content: flex-end;">
+            <form class="row g-2 align-items-center mb-3" method="GET" action="">
                 <input type="hidden" name="status" value="<?= htmlspecialchars($status) ?>">
-                <input type="date"
-                       class="form-control flex-shrink-0"
-                       name="filter_date"
-                       value="<?= htmlspecialchars($filter_date) ?>"
-                       style="max-width: 150px;">
-                <input type="text"
-                       class="form-control"
-                       name="search"
-                       style="max-width: 300px;"
-                       placeholder="Tìm kiếm tên sự kiện, phim"
-                       value="<?= htmlspecialchars($search) ?>">
-                <button class="btn btn-outline-primary flex-shrink-0" type="submit">
-                    <i class="bi bi-search"></i>
-                </button>
-                <button type="button"
-                        class="btn btn-success flex-shrink-0"
-                        id="createEventBtn"
-                        data-bs-toggle="modal"
-                        data-bs-target="#editEventModal">
-                    <i class="bi bi-plus-circle"></i> Sự kiện & Phim
-                </button>
+                <div class="col-auto">
+                    <input type="date"
+                           class="form-control"
+                           name="filter_date"
+                           value="<?= htmlspecialchars($filter_date) ?>">
+                </div>
+                <div class="col-md-4">
+                    <input type="text"
+                           class="form-control"
+                           name="search"
+                           placeholder="Tìm kiếm tên sự kiện, phim"
+                           value="<?= htmlspecialchars($search) ?>">
+                </div>
+                <div class="col-auto d-flex gap-2">
+                    <button class="btn btn-primary rounded-pill" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                    <button type="button"
+                            class="btn btn-success rounded-pill"
+                            id="createEventBtn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editEventModal">
+                        <i class="bi bi-plus-circle"></i> Sự kiện &amp; Phim
+                    </button>
+                </div>
             </form>
-        </div>
 
-        <?php if (empty($events)): ?>
-            <div class="alert alert-info">Không có sự kiện, phim nào.</div>
-        <?php else: ?>
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover table-striped">
-                    <thead class="table-dark">
+            <?php if (empty($events)): ?>
+                <div class="alert alert-info mb-0">Không có sự kiện, phim nào.</div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
                         <tr>
                             <th style="width: 7%;">Mã</th>
                             <th style="width: 33%;">Sự kiện / Phim</th>
-                            <th style="width: 7%;">Thời gian</th>
-                            <th style="width: 33%;">Địa điểm</th>
+                            <th style="width: 15%;">Thời gian</th>
+                            <th style="width: 35%;">Địa điểm</th>
                             <th style="width: 10%;" class="text-center">Thao tác</th>
                         </tr>
-                    </thead>
-                    <tbody id="event-body">
+                        </thead>
+                        <tbody id="event-body">
                         <?php foreach ($events as $event): ?>
                             <tr class="event-row">
                                 <td><?= htmlspecialchars($event['event_id']) ?></td>
@@ -147,20 +155,20 @@ if (isset($_GET['view'])) {
                                     <?php if ($status == 'upcoming'): ?>
                                         <?php $isBooked = in_array($event['event_id'], $eventIdsWithBookedSeats); ?>
                                         <button class="btn btn-sm btn-warning edit-btn"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#editEventModal"
-                                            data-id="<?= $event['event_id'] ?>"
-                                            data-name="<?= htmlspecialchars($event['event_name'], ENT_QUOTES) ?>"
-                                            data-img="<?= htmlspecialchars($event['event_img']) ?>"
-                                            data-start="<?= $event['start_time'] ?>"
-                                            data-price="<?= $event['price'] ?>"
-                                            data-location="<?= htmlspecialchars($event['location'], ENT_QUOTES) ?>"
-                                            data-seats="<?= $event['total_seats'] ?>"
-                                            data-type="<?= htmlspecialchars($event['event_type'], ENT_QUOTES) ?>"
-                                            data-kind="<?= htmlspecialchars($event['event_kind'] ?? 'event', ENT_QUOTES) ?>"
-                                            data-duration="<?= $event['duration'] ?>"
-                                            data-status="<?= $event['eStatus'] ?>"
-                                            data-booked="<?= $isBooked ? '1' : '0' ?>">
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editEventModal"
+                                                data-id="<?= $event['event_id'] ?>"
+                                                data-name="<?= htmlspecialchars($event['event_name'], ENT_QUOTES) ?>"
+                                                data-img="<?= htmlspecialchars($event['event_img']) ?>"
+                                                data-start="<?= $event['start_time'] ?>"
+                                                data-price="<?= $event['price'] ?>"
+                                                data-location="<?= htmlspecialchars($event['location'], ENT_QUOTES) ?>"
+                                                data-seats="<?= $event['total_seats'] ?>"
+                                                data-type="<?= htmlspecialchars($event['event_type'], ENT_QUOTES) ?>"
+                                                data-kind="<?= htmlspecialchars($event['event_kind'] ?? 'event', ENT_QUOTES) ?>"
+                                                data-duration="<?= $event['duration'] ?>"
+                                                data-status="<?= $event['eStatus'] ?>"
+                                                data-booked="<?= $isBooked ? '1' : '0' ?>">
                                             <i class="bi bi-pencil"></i>
                                         </button>
                                         <a href="delete_event.php?event_id=<?= $event['event_id'] ?>"
@@ -181,14 +189,16 @@ if (isset($_GET['view'])) {
                                 </td>
                             </tr>
                         <?php endforeach ?>
-                    </tbody>
-                </table>
-            </div>
-            <nav>
-                <ul class="pagination justify-content-center" id="pagination-container"></ul>
-            </nav>
-        <?php endif ?>
+                        </tbody>
+                    </table>
+                </div>
+                <nav>
+                    <ul class="pagination justify-content-center" id="pagination-container"></ul>
+                </nav>
+            <?php endif ?>
+        </div>
     </div>
+</div>
 
 <script>
     const nextEventId = <?= json_encode($nextEventId) ?>;
@@ -197,7 +207,7 @@ if (isset($_GET['view'])) {
         const totalSeatsField = document.getElementById('totalSeats');
         const priceField      = document.getElementById('price');
         const seatWarning     = document.getElementById('seats-warning');
-        const kindSelect      = document.getElementById('eventKind'); // select event_kind nếu có
+        const kindSelect      = document.getElementById('eventKind');
 
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', function () {
@@ -272,7 +282,7 @@ if (isset($_GET['view'])) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const rows       = document.querySelectorAll('.event-row');
+    const rows        = document.querySelectorAll('.event-row');
     const rowsPerPage = 15;
     const totalPages  = Math.ceil(rows.length / rowsPerPage);
     const pagination  = document.getElementById('pagination-container');

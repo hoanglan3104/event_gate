@@ -1,6 +1,6 @@
 <?php
 $host = "localhost";
-$dbname = "ticketbox";
+$dbname = "ticket";
 $username = "root";
 $password = "";
 

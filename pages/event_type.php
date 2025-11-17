@@ -4,39 +4,58 @@ require_once "../config.php";
 require_once "../includes/db_connect.php";
 
 $eventTypeParam = isset($_GET['event_type']) ? urldecode($_GET['event_type']) : 'latest';
+
 $eventTypeMap = [
-    'music' => 'Âm nhạc',
-    'visit' => 'Tham quan',
+    'music'      => 'Âm nhạc',
+    'visit'      => 'Tham quan',
     'tournament' => 'Giải đấu',
-    'art' => 'Văn hóa nghệ thuật',
-    'all' => 'Tất cả'
+    'art'        => 'Văn hóa nghệ thuật',
+    'movie'      => 'Phim',
+    'all'        => 'Tất cả'
 ];
 
 // Gán tên hiển thị để dùng ở giao diện
-$eventTypeDisplay = isset($eventTypeMap[$eventTypeParam]) ? $eventTypeMap[$eventTypeParam] : 'Mới nhất';
+$eventTypeDisplay = $eventTypeMap[$eventTypeParam] ?? 'Mới nhất';
 
 $today = date('Y-m-d');
-if ($eventTypeParam === 'all') {
-    $query = "SELECT * FROM events Where eStatus='Chưa diễn ra' ORDER BY start_time ASC";
-    $stmt = $pdo->prepare($query);
-    $success = $stmt->execute();
 
-    if (!$success) {
-        echo "SQL error: ";
-        print_r($stmt->errorInfo());
-        exit;
-    }
+if ($eventTypeParam === 'all') {
+    // tất cả sự kiện chưa diễn ra
+    $query = "SELECT * FROM events WHERE eStatus = 'Chưa diễn ra' ORDER BY start_time ASC";
+    $stmt  = $pdo->prepare($query);
+    $stmt->execute();
+
+} elseif ($eventTypeParam === 'movie') {
+    // riêng tab Phim: lọc theo event_kind = 'movie'
+    $query = "
+        SELECT * FROM events 
+        WHERE event_kind = 'movie' 
+          AND eStatus = 'Chưa diễn ra'
+          AND DATE(start_time) >= :today
+        ORDER BY start_time ASC
+    ";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([
+        'today' => $today
+    ]);
+
 } else {
-    $query = "SELECT * FROM events WHERE event_type = :event_type AND DATE(start_time) >= :today ORDER BY start_time ASC";
+    // các loại khác: âm nhạc, tham quan, giải đấu, nghệ thuật...
+    $query = "
+        SELECT * FROM events 
+        WHERE event_type = :event_type 
+          AND eStatus = 'Chưa diễn ra'
+          AND DATE(start_time) >= :today
+        ORDER BY start_time ASC
+    ";
     $stmt = $pdo->prepare($query);
     $stmt->execute([
         'event_type' => $eventTypeParam,
-        'today' => $today
+        'today'      => $today
     ]);
 }
 
-
-$result = $stmt->fetchAll();
+$result    = $stmt->fetchAll();
 $mainEvent = count($result) > 0 ? $result[0] : null;
 ?>
 
@@ -81,7 +100,7 @@ $mainEvent = count($result) > 0 ? $result[0] : null;
                 $day = date("d", $startTime);
                 $year = date("Y", $startTime);
             ?>
-            <a href="payment.php?event_id=<?= $mainEvent['event_id'] ?>" class="main-single" style="text-decoration: none; color: black;">
+            <a href="payment.php?event_id=<?= $mainEvent['event_id'] ?>" class="main-single" style="text-decoration: none; color: white;">
                 <div class="image-box">
                     <img src="<?= htmlspecialchars($mainEvent['event_img']) ?>" alt="<?= htmlspecialchars($mainEvent['event_img']) ?>">
                 </div>

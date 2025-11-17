@@ -13,20 +13,21 @@ function generateEventId($pdo) {
     return 'E0' . str_pad($nextId, 2, '0', STR_PAD_LEFT);
 }
 
-$event_id = $_POST['event_id'] ?? '';
-$event_name = $_POST['event_name'] ?? '';
-$start_time = $_POST['start_time'] ?? '';
-$price = $_POST['price'] ?? 0;
-$duration = $_POST['duration'] ?? 1;
-$location = $_POST['location'] ?? '';
+$event_id    = $_POST['event_id']    ?? '';
+$event_name  = $_POST['event_name']  ?? '';
+$start_time  = $_POST['start_time']  ?? '';
+$price       = $_POST['price']       ?? 0;
+$duration    = $_POST['duration']    ?? 1;
+$location    = $_POST['location']    ?? '';
 $total_seats = $_POST['total_seats'] ?? 50;
-$event_type = $_POST['event_type'] ?? 'music';
-$eStatus = $_POST['eStatus'] ?? 'Chưa diễn ra';
+$event_type  = $_POST['event_type']  ?? 'music';
+$event_kind  = $_POST['event_kind']  ?? 'event';  // Sự kiện / Phim
+$eStatus     = $_POST['eStatus']     ?? 'Chưa diễn ra';
 
-// Xử lý hình ảnh
+// ảnh
 $event_img = $_POST['old_event_img'] ?? '';
 if (!empty($_FILES['event_img']['name'])) {
-    $uploadDir = '../assets/images/';
+    $uploadDir  = '../assets/images/';
     $uploadFile = $uploadDir . basename($_FILES['event_img']['name']);
     if (move_uploaded_file($_FILES['event_img']['tmp_name'], $uploadFile)) {
         $event_img = basename($_FILES['event_img']['name']);
@@ -35,14 +36,28 @@ if (!empty($_FILES['event_img']['name'])) {
     $event_img = $_POST['event_img_link'];
 }
 
-// Kiểm tra event_id đã tồn tại hay chưa
+// check tồn tại
 $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM events WHERE event_id = ?");
 $stmtCheck->execute([$event_id]);
 $isUpdate = $stmtCheck->fetchColumn() > 0;
 
 if ($isUpdate) {
-    // Cập nhật sự kiện
-    $stmt = $pdo->prepare("UPDATE events SET event_name=?, start_time=?, price=?, duration=?, location=?, total_seats=?, event_type=?, eStatus=?, event_img=? WHERE event_id=?");
+    // update
+    $stmt = $pdo->prepare("
+        UPDATE events 
+        SET event_name = ?, 
+            start_time  = ?, 
+            price       = ?, 
+            duration    = ?, 
+            location    = ?, 
+            total_seats = ?, 
+            event_type  = ?, 
+            event_kind  = ?, 
+            eStatus     = ?, 
+            event_img   = ?
+        WHERE event_id = ?
+    ");
+
     $success = $stmt->execute([
         $event_name,
         $start_time,
@@ -51,6 +66,7 @@ if ($isUpdate) {
         $location,
         $total_seats,
         $event_type,
+        $event_kind,
         $eStatus,
         $event_img,
         $event_id
@@ -58,10 +74,16 @@ if ($isUpdate) {
 
     $_SESSION['success'] = $success ? "Cập nhật sự kiện thành công!" : "Có lỗi khi cập nhật.";
 } else {
-    // Thêm sự kiện mới
+    // insert mới
     $event_id = generateEventId($pdo);
 
-    $stmt = $pdo->prepare("INSERT INTO events (event_id, event_name, start_time, price, duration, location, total_seats, event_type, eStatus, event_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("
+        INSERT INTO events 
+            (event_id, event_name, start_time, price, duration, location, total_seats, event_type, event_kind, eStatus, event_img)
+        VALUES 
+            (?,        ?,          ?,          ?,     ?,        ?,        ?,           ?,          ?,         ?,        ?)
+    ");
+
     $success = $stmt->execute([
         $event_id,
         $event_name,
@@ -71,27 +93,32 @@ if ($isUpdate) {
         $location,
         $total_seats,
         $event_type,
+        $event_kind,
         $eStatus,
         $event_img
     ]);
 
-    // Tạo danh sách ghế
-    $vipCount = floor($total_seats * 0.2);
+    // tạo ghế
+    $vipCount     = floor($total_seats * 0.2);
     $regularCount = $total_seats - $vipCount;
-    $row = 'A';
-    $col = 1;
-    $seatIndex = 1;
 
-    $stmt = $pdo->query("SELECT MAX(CAST(SUBSTRING(seat_id, 2) AS UNSIGNED)) AS max_id FROM seats");
-    $max = $stmt->fetchColumn();
-    $seatIndex = ($max ?? 0) + 1;
+    $row       = 'A';
+    $col       = 1;
 
-    $insertStmt = $pdo->prepare("INSERT INTO seats (seat_id, event_id, seat_type, seat_number, sStatus, seat_price) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmtMaxSeat = $pdo->query("SELECT MAX(CAST(SUBSTRING(seat_id, 2) AS UNSIGNED)) AS max_id FROM seats");
+    $max         = $stmtMaxSeat->fetchColumn();
+    $seatIndex   = ($max ?? 0) + 1;
+
+    $insertSeat = $pdo->prepare("
+        INSERT INTO seats (seat_id, event_id, seat_type, seat_number, sStatus, seat_price)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ");
 
     for ($i = 0; $i < $vipCount; $i++) {
         $seat_number = $row . $col++;
         if ($col > 10) { $col = 1; $row++; }
-        $insertStmt->execute([
+
+        $insertSeat->execute([
             'S' . str_pad($seatIndex++, 3, '0', STR_PAD_LEFT),
             $event_id,
             'vip',
@@ -104,7 +131,8 @@ if ($isUpdate) {
     for ($i = 0; $i < $regularCount; $i++) {
         $seat_number = $row . $col++;
         if ($col > 10) { $col = 1; $row++; }
-        $insertStmt->execute([
+
+        $insertSeat->execute([
             'S' . str_pad($seatIndex++, 3, '0', STR_PAD_LEFT),
             $event_id,
             'normal',

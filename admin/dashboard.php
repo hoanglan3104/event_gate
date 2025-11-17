@@ -91,7 +91,6 @@ $stmt->execute([$startYear, $currentYear]);
 while ($row = $stmt->fetch()) {
     $yearRevenue[(int)$row['year']] = (int)$row['total'];
 }
-// Đảm bảo đủ 5 năm
 for ($y = $startYear; $y <= $currentYear; $y++) {
     if (!isset($yearRevenue[$y])) {
         $yearRevenue[$y] = 0;
@@ -113,73 +112,82 @@ ksort($yearRevenue);
 
 <?php $current_page = 'dashboard'; include "includes/menu.php"; ?>
 
-<div class="main-content p-4">
-    <h1 class="mb-4"><i class="bi bi-speedometer2"></i> Bảng điều khiển</h1>
+<div class="main-content p-4 dashboard-main">
+    <h1 class="dashboard-title d-flex align-items-center gap-2">
+        <i class="bi bi-speedometer2"></i>
+        <span>Bảng điều khiển</span>
+    </h1>
 
-    <!-- Thống kê nhanh -->
     <div class="row g-3">
         <div class="col-md-3">
-            <div class="card shadow-sm border-0">
+            <div class="card dashboard-stat-card">
                 <div class="card-body d-flex align-items-center">
-                    <div class="me-3 card-icon"><i class="bi bi-people"></i></div>
+                    <div class="me-3 card-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
                     <div>
                         <h5 class="card-title mb-1"><a href="users.php">Người dùng</a></h5>
-                        <p class="card-text text-muted"><?= $totalUsers ?> tài khoản</p>
+                        <p class="card-text text-muted mb-0"><?= $totalUsers ?> tài khoản</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm border-0">
+            <div class="card dashboard-stat-card">
                 <div class="card-body d-flex align-items-center">
-                    <div class="me-3 card-icon"><i class="bi bi-calendar-event"></i></div>
+                    <div class="me-3 card-icon">
+                        <i class="bi bi-calendar-event"></i>
+                    </div>
                     <div>
-                        <h5 class="card-title mb-1"><a href="events.php">Sự kiện & Phim</a></h5>
-                        <p class="card-text text-muted"><?= $totalEvents ?> sự kiện & Phim</p>
+                        <h5 class="card-title mb-1"><a href="events.php">Sự kiện &amp; Phim</a></h5>
+                        <p class="card-text text-muted mb-0"><?= $totalEvents ?> sự kiện &amp; Phim</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm border-0">
+            <div class="card dashboard-stat-card">
                 <div class="card-body d-flex align-items-center">
-                    <div class="me-3 card-icon"><i class="bi bi-ticket-perforated"></i></div>
+                    <div class="me-3 card-icon">
+                        <i class="bi bi-ticket-perforated"></i>
+                    </div>
                     <div>
                         <h5 class="card-title mb-1"><a href="orders.php">Vé đã bán</a></h5>
-                        <p class="card-text text-muted"><?= $totalorders ?> vé</p>
+                        <p class="card-text text-muted mb-0"><?= $totalorders ?> vé</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm border-0">
+            <div class="card dashboard-stat-card">
                 <div class="card-body d-flex align-items-center">
-                    <div class="me-3 card-icon"><i class="bi bi-bar-chart-line"></i></div>
+                    <div class="me-3 card-icon">
+                        <i class="bi bi-bar-chart-line"></i>
+                    </div>
                     <div>
                         <h5 class="card-title mb-1"><a href="revenue.php">Tổng doanh thu</a></h5>
-                        <p class="card-text text-muted"><?= number_format($totalPaids, 0, ',', '.') ?> VND</p>
+                        <p class="card-text text-muted mb-0"><?= number_format($totalPaids, 0, ',', '.') ?> VND</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bộ lọc thời gian & doanh thu -->
-    <div class="card mt-4">
+    <div class="card dashboard-section-card mt-4">
         <div class="card-body">
             <h5 class="card-title">Doanh thu theo ngày</h5>
             <form method="GET" class="row g-3 align-items-end">
                 <div class="col-md-4">
                     <label for="revenue_date" class="form-label">Chọn ngày</label>
-                    <input type="date" class="form-control" id="revenue_date" name="revenue_date"value="<?= $_GET['revenue_date'] ?? date('Y-m-d') ?>">
+                    <input type="date" class="form-control" id="revenue_date" name="revenue_date" value="<?= $_GET['revenue_date'] ?? date('Y-m-d') ?>">
                 </div>
                 <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary w-100">Xem</button>
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm">Xem</button>
                 </div>
             </form>
             <?php if ($dailyTotal > 0): ?>
                 <div class="alert alert-success mt-4">
-                    Tổng <strong><?= date('d/m/Y', strtotime($revenueDate)) ?></strong>:  
+                    Tổng <strong><?= date('d/m/Y', strtotime($revenueDate)) ?></strong>:
                     <strong><?= number_format($dailyTotal, 0, ',', '.') ?> VND</strong>
                 </div>
             <?php else: ?>
@@ -190,12 +198,11 @@ ksort($yearRevenue);
         </div>
     </div>
 
-    <!-- Biểu đồ tổng quan doanh thu -->
-    <div class="card mt-4">
+    <div class="card dashboard-section-card mt-4">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="card-title mb-0">Thống kê doanh thu</h5>
-                <select id="chartFilter" class="form-select w-auto">
+                <select id="chartFilter" class="form-select w-auto rounded-pill shadow-sm border-0">
                     <option value="week">Theo tuần</option>
                     <option value="month">Theo tháng</option>
                     <option value="quarter">Theo quý</option>
@@ -208,7 +215,6 @@ ksort($yearRevenue);
 
 </div>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     let chart;
@@ -253,7 +259,8 @@ ksort($yearRevenue);
                 datasets: [{
                     label: 'Doanh thu (VND)',
                     data: chartData[type].data,
-                    backgroundColor: '#007bff'
+                    backgroundColor: '#0ea5e9',
+                    borderRadius: 8
                 }]
             },
             options: {

@@ -33,12 +33,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="login-wrapper">
         <div class="login-image">
-            <img src="../assets/images/logo.png" alt="Login Banner">
+            <img src="../assets/images/logo.png" alt="EventGate">
         </div>
-        
+
         <div class="login-container">
-            <h2><i class="bi bi-person-vcard-fill"></i> Admin Login</h2>
-            <?php if (!empty($error)): ?><p class="error"><?php echo $error; ?></p><?php endif; ?>
+            <h2>
+                <i class="bi bi-person-vcard-fill"></i>
+                <span>Admin Login</span>
+            </h2>
+            <?php if (!empty($error)): ?>
+                <p class="error"><?= $error ?></p>
+            <?php endif; ?>
+
             <form method="post">
                 <div class="form-group">
                     <label><i class="bi bi-person-square"></i> Tên đăng nhập</label>
@@ -48,10 +54,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label><i class="bi bi-lock-fill"></i> Mật khẩu</label>
                     <input type="password" name="password" placeholder="Mật khẩu" required>
                 </div>
-                <button type="submit"><i class="bi bi-door-open-fill"></i><b>Đăng nhập</b> </button>
+                <button type="submit">
+                    <i class="bi bi-door-open-fill"></i>
+                    <span>Đăng nhập</span>
+                </button>
             </form>
         </div>
     </div>
 </body>
 </html>
-
